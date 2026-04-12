@@ -58,7 +58,7 @@ export const clubs: Club[] = [
     lat: 59.21151, lng: 9.58986,
     teams: [
       { name: "Odd 3", division: "4. divisjon" },
-      { name: "Odd 2 kvinner", division: "4. div kvinner" },
+      { name: "Odds Ballklubb 2", division: "4. div kvinner" },
     ],
   },
   {
@@ -72,7 +72,7 @@ export const clubs: Club[] = [
       { name: "Urædd", division: "4. divisjon" },
       { name: "Urædd 2", division: "5. divisjon" },
       { name: "Urædd 3", division: "7. divisjon" },
-      { name: "Urædd kvinner", division: "4. div kvinner" },
+      { name: "Urædd", division: "4. div kvinner" },
     ],
   },
   {
@@ -86,7 +86,7 @@ export const clubs: Club[] = [
       { name: "Storm", division: "4. divisjon" },
       { name: "Storm 2", division: "5. divisjon" },
       { name: "Storm 3", division: "7. divisjon" },
-      { name: "Fossum/Storm kvinner", division: "4. div kvinner" },
+      { name: "Fossum/Storm 2", division: "4. div kvinner" },
     ],
   },
   {
@@ -98,7 +98,7 @@ export const clubs: Club[] = [
     lat: 59.16105, lng: 9.62841,
     teams: [
       { name: "Tollnes", division: "4. divisjon" },
-      { name: "Tollnes kvinner", division: "4. div kvinner" },
+      { name: "Tollnes", division: "4. div kvinner" },
     ],
   },
   {
@@ -146,7 +146,7 @@ export const clubs: Club[] = [
     teams: [
       { name: "Skarphedin", division: "4. divisjon" },
       { name: "Skarphedin 2", division: "7. divisjon" },
-      { name: "Skarphedin kvinner", division: "4. div kvinner" },
+      { name: "Skarphedin 2", division: "4. div kvinner" },
     ],
   },
   {
@@ -167,7 +167,7 @@ export const clubs: Club[] = [
     lat: 59.57093, lng: 9.27054,
     teams: [
       { name: "Snøgg", division: "5. divisjon" },
-      { name: "Snøgg kvinner", division: "4. div kvinner" },
+      { name: "Snøgg 2", division: "4. div kvinner" },
     ],
   },
   {
@@ -209,7 +209,7 @@ export const clubs: Club[] = [
     lat: 59.18246, lng: 9.59941,
     teams: [
       { name: "Herkules", division: "5. divisjon" },
-      { name: "Herkules kvinner", division: "4. div kvinner" },
+      { name: "Herkules", division: "4. div kvinner" },
     ],
   },
   {
@@ -274,7 +274,7 @@ export const clubs: Club[] = [
   {
     slug: "gransherad",
     name: "Gransherad/Heddal 2",
-    logo: "https://images.fotball.no/clublogos/558.png",
+    logo: "https://images.fotball.no/clublogos/559.png",
     venue: "Lerkelunden Fotballbane",
     location: "Gransherad",
     lat: 59.69276, lng: 9.02849,
@@ -303,7 +303,7 @@ export const clubs: Club[] = [
     lat: 59.29899, lng: 9.09587,
     teams: [
       { name: "Nome", division: "6. divisjon" },
-      { name: "Nome 2", division: "7. divisjon" },
+      { name: "Nome Fotball 2", division: "7. divisjon" },
     ],
   },
   {
@@ -315,7 +315,7 @@ export const clubs: Club[] = [
     lat: 59.42137, lng: 9.32548,
     teams: [
       { name: "Sauherad", division: "6. divisjon" },
-      { name: "Sauherad kvinner", division: "4. div kvinner" },
+      { name: "Sauherad", division: "4. div kvinner" },
     ],
   },
   {
