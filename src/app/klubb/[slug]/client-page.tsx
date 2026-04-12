@@ -1,18 +1,70 @@
 "use client";
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import type { Player, TeamSquad } from "@/lib/players";
 import type { Club, ClubTeam } from "@/lib/clubs";
 import { User } from "lucide-react";
 
 const positionOrder = ["Keeper", "Forsvar", "Midtbane", "Angrep", "Ukjent"] as const;
 const positionLabels: Record<string, string> = {
+  Alle: "Alle",
   Keeper: "Keeper",
   Forsvar: "Forsvar",
   Midtbane: "Midtbane",
   Angrep: "Angrep",
   Ukjent: "Ikke satt",
 };
+
+function getInitials(name: string) {
+  const parts = name.split(" ");
+  if (parts.length === 1) return parts[0][0];
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function PlayerCard({ player }: { player: Player }) {
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -12 }}
+      transition={{ duration: 0.3 }}
+      className="group"
+    >
+      <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-muted/40">
+        {/* Silhouette / initials placeholder */}
+        <div className="absolute inset-0 flex items-center justify-center bg-[#1a1e27]">
+          <span className="text-3xl font-semibold text-muted-foreground/30 sm:text-4xl select-none">
+            {getInitials(player.name)}
+          </span>
+        </div>
+
+        {/* Number badge */}
+        {player.number && (
+          <div className="absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded bg-background/50 backdrop-blur-sm font-mono text-[11px] font-bold text-foreground/60">
+            {player.number}
+          </div>
+        )}
+
+        {/* Position tag — slides up on hover */}
+        <div className="absolute inset-x-0 bottom-0 translate-y-full bg-gradient-to-t from-[#0c0f14]/80 to-transparent p-3 transition-transform duration-300 group-hover:translate-y-0">
+          <span className="text-[11px] text-white/70">
+            {positionLabels[player.position]}
+            {player.number ? ` · #${player.number}` : ""}
+          </span>
+        </div>
+      </div>
+
+      <h3 className="mt-3 text-[14px] font-medium leading-snug tracking-tight text-foreground">
+        {player.name}
+      </h3>
+      <p className="mt-0.5 text-[12px] text-muted-foreground">
+        {positionLabels[player.position]}
+      </p>
+    </motion.div>
+  );
+}
 
 export function ClubSquadSection({
   club,
@@ -35,6 +87,12 @@ export function ClubSquadSection({
       : activeSquad.players.filter((p) => p.position === posFilter)
     : [];
 
+  // Build filter options with counts
+  const filterOptions = ["Alle", ...positionOrder].filter((pos) => {
+    if (pos === "Alle") return true;
+    return activeSquad?.players.some((p) => p.position === pos);
+  });
+
   return (
     <div className="mt-10">
       {/* Team selector */}
@@ -49,7 +107,12 @@ export function ClubSquadSection({
             return (
               <button
                 key={`${team.name}-${team.division}`}
-                onClick={() => hasSquad && setSelectedTeam(team.name)}
+                onClick={() => {
+                  if (hasSquad) {
+                    setSelectedTeam(team.name);
+                    setPosFilter("Alle");
+                  }
+                }}
                 className={`cursor-pointer rounded-md border px-3 py-2 text-sm font-medium transition-colors ${
                   isActive
                     ? "border-[#c5382a] bg-[#c5382a]/10 text-[#c5382a]"
@@ -70,79 +133,44 @@ export function ClubSquadSection({
 
       {activeSquad && activeSquad.players.length > 0 ? (
         <>
-          {/* Position filter — underline style like the reference image */}
-          <div className="mb-8 flex gap-6 border-b border-border">
-            {["Alle", ...positionOrder].map((pos) => {
-              const count =
-                pos === "Alle"
-                  ? activeSquad.players.length
-                  : activeSquad.players.filter((p) => p.position === pos).length;
-              if (pos !== "Alle" && count === 0) return null;
-              return (
-                <button
-                  key={pos}
-                  onClick={() => setPosFilter(pos)}
-                  className={`cursor-pointer pb-3 text-sm font-medium transition-colors relative ${
-                    posFilter === pos
-                      ? "text-foreground"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {pos === "Alle" ? "Alle" : positionLabels[pos]}
-                  {posFilter === pos && (
-                    <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-foreground" />
-                  )}
-                </button>
-              );
-            })}
+          {/* Position filter — animated underline like EJAS */}
+          <div className="flex flex-wrap gap-6 border-b border-border">
+            {filterOptions.map((pos) => (
+              <button
+                key={pos}
+                onClick={() => setPosFilter(pos)}
+                className={`relative cursor-pointer whitespace-nowrap pb-3 text-[13px] tracking-wide transition-colors ${
+                  posFilter === pos
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:text-foreground/70"
+                }`}
+              >
+                {positionLabels[pos]}
+                {posFilter === pos && (
+                  <motion.div
+                    layoutId="pos-underline"
+                    className="absolute bottom-0 left-0 right-0 h-px bg-foreground"
+                  />
+                )}
+              </button>
+            ))}
           </div>
 
-          {/* Player cards — silhouette style */}
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-            {filteredPlayers.map((player, i) => (
-              <div key={`${player.name}-${i}`} className="group">
-                {/* Silhouette image placeholder */}
-                <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-muted/50">
-                  {/* SVG silhouette */}
-                  <svg
-                    viewBox="0 0 200 260"
-                    className="absolute inset-0 h-full w-full"
-                    fill="none"
-                  >
-                    {/* Background */}
-                    <rect width="200" height="260" fill="rgba(255,255,255,0.03)" />
-                    {/* Head */}
-                    <ellipse
-                      cx="100"
-                      cy="95"
-                      rx="38"
-                      ry="42"
-                      fill="rgba(255,255,255,0.06)"
-                    />
-                    {/* Shoulders/body */}
-                    <path
-                      d="M30 260 C30 190, 55 175, 100 170 C145 175, 170 190, 170 260"
-                      fill="rgba(255,255,255,0.06)"
-                    />
-                  </svg>
-                  {/* Number badge */}
-                  {player.number && (
-                    <div className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-md bg-background/60 backdrop-blur-sm text-[11px] font-bold text-foreground/70">
-                      {player.number}
-                    </div>
-                  )}
-                </div>
-                {/* Info below card */}
-                <div className="mt-2.5">
-                  <div className="text-sm font-semibold leading-snug tracking-tight">
-                    {player.name}
-                  </div>
-                  <div className="mt-0.5 text-xs text-muted-foreground">
-                    {positionLabels[player.position]}
-                  </div>
-                </div>
-              </div>
-            ))}
+          {/* Player grid */}
+          <div className="mt-10">
+            <AnimatePresence mode="popLayout">
+              <motion.div
+                layout
+                className="grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
+              >
+                {filteredPlayers.map((player) => (
+                  <PlayerCard
+                    key={`${player.name}-${player.position}`}
+                    player={player}
+                  />
+                ))}
+              </motion.div>
+            </AnimatePresence>
           </div>
         </>
       ) : (
