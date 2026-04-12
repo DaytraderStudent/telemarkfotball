@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { clubs, divisionColors, type Club } from "@/lib/clubs";
+import { clubs } from "@/lib/clubs";
 
 function FitBounds() {
   const map = useMap();
@@ -15,7 +15,7 @@ function FitBounds() {
   return null;
 }
 
-const divisions = Object.keys(divisionColors);
+const totalTeams = clubs.reduce((sum, c) => sum + c.teams.length, 0);
 
 export function StadiumMap() {
   return (
@@ -31,82 +31,73 @@ export function StadiumMap() {
         <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
         <FitBounds />
 
-        {clubs.map((club) => {
-          const color = divisionColors[club.division] || "#e8e6e1";
-          return (
-            <CircleMarker
-              key={`${club.name}-${club.division}`}
-              center={[club.lat, club.lng]}
-              radius={6}
-              pathOptions={{
-                color: "rgba(255,255,255,0.3)",
-                fillColor: color,
-                fillOpacity: 0.9,
-                weight: 1.5,
-              }}
-              eventHandlers={{
-                mouseover: (e) => {
-                  e.target.setRadius(9);
-                  e.target.setStyle({ weight: 2, color: "#fff", fillOpacity: 1 });
-                },
-                mouseout: (e) => {
-                  e.target.setRadius(6);
-                  e.target.setStyle({ weight: 1.5, color: "rgba(255,255,255,0.3)", fillOpacity: 0.9 });
-                },
-              }}
-            >
-              <Popup closeButton={false} offset={[0, -6]}>
-                <div className="min-w-[170px]">
-                  <div className="text-[13px] font-semibold text-white leading-tight">
-                    {club.name}
-                  </div>
-                  <div className="mt-0.5 text-[11px] text-white/50">
-                    {club.venue}
-                  </div>
-                  <div className="mt-2 flex items-center gap-2">
-                    <span
-                      className="inline-flex items-center gap-1.5 rounded px-1.5 py-0.5 text-[10px] font-medium"
-                      style={{ background: `${color}22`, color }}
-                    >
-                      <span
-                        className="h-1.5 w-1.5 rounded-full"
-                        style={{ background: color }}
-                      />
-                      {club.division}
-                    </span>
-                    <span className="text-[10px] text-white/30">
-                      {club.location}
-                    </span>
-                  </div>
+        {clubs.map((club) => (
+          <CircleMarker
+            key={club.name}
+            center={[club.lat, club.lng]}
+            radius={club.teams.length > 2 ? 8 : club.teams.length > 1 ? 7 : 5}
+            pathOptions={{
+              color: "rgba(255,255,255,0.25)",
+              fillColor: "#e8e6e1",
+              fillOpacity: 0.85,
+              weight: 1.5,
+            }}
+            eventHandlers={{
+              mouseover: (e) => {
+                e.target.setStyle({
+                  weight: 2,
+                  color: "#fff",
+                  fillColor: "#c5382a",
+                  fillOpacity: 1,
+                });
+              },
+              mouseout: (e) => {
+                e.target.setStyle({
+                  weight: 1.5,
+                  color: "rgba(255,255,255,0.25)",
+                  fillColor: "#e8e6e1",
+                  fillOpacity: 0.85,
+                });
+              },
+            }}
+          >
+            <Popup closeButton={false} offset={[0, -6]}>
+              <div className="min-w-[180px]">
+                <div className="text-[13px] font-semibold text-white leading-tight">
+                  {club.name}
                 </div>
-              </Popup>
-            </CircleMarker>
-          );
-        })}
+                <div className="mt-0.5 text-[11px] text-white/50">
+                  {club.venue} &middot; {club.location}
+                </div>
+
+                <div className="mt-2.5 flex flex-col gap-1">
+                  {club.teams.map((team) => (
+                    <div
+                      key={`${team.name}-${team.division}`}
+                      className="flex items-center justify-between gap-3"
+                    >
+                      <span className="text-[11px] text-white/80">{team.name}</span>
+                      <span className="shrink-0 text-[10px] text-white/30">{team.division}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Popup>
+          </CircleMarker>
+        ))}
       </MapContainer>
 
-      {/* Legend */}
+      {/* Info overlay */}
       <div className="pointer-events-none absolute bottom-6 left-4 z-[1000] sm:bottom-8 sm:left-6">
         <div className="pointer-events-auto rounded-lg border border-white/[0.07] bg-[#13161d]/90 px-4 py-3 backdrop-blur-xl">
-          <div className="mb-2.5 text-[10px] font-semibold uppercase tracking-widest text-white/40">
-            Divisjoner
+          <div className="text-[10px] font-semibold uppercase tracking-widest text-white/40">
+            Telemark 2025
           </div>
-          <div className="flex flex-col gap-2">
-            {divisions.map((div) => (
-              <div key={div} className="flex items-center gap-2.5">
-                <span
-                  className="h-2 w-2 rounded-full"
-                  style={{ background: divisionColors[div] }}
-                />
-                <span className="text-[11px] text-white/60">{div}</span>
-                <span className="ml-auto pl-3 font-mono text-[10px] text-white/25">
-                  {clubs.filter((c) => c.division === div).length}
-                </span>
-              </div>
-            ))}
+          <div className="mt-1.5 text-[20px] font-bold leading-none text-white">
+            {clubs.length} <span className="text-[13px] font-normal text-white/40">klubber</span>
           </div>
-          <div className="mt-2.5 border-t border-white/[0.07] pt-2 text-[10px] text-white/25">
-            {clubs.length} lag totalt
+          <div className="mt-0.5 text-[11px] text-white/30">
+            {totalTeams} lag i 5 divisjoner
           </div>
         </div>
       </div>
@@ -117,7 +108,7 @@ export function StadiumMap() {
           Stadionkart
         </h1>
         <p className="mt-1 text-xs text-white/40">
-          Alle lag i breddefotballen i Telemark
+          Trykk på en prikk for detaljer
         </p>
       </div>
     </div>
