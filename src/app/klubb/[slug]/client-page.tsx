@@ -26,40 +26,36 @@ function PlayerCard({ player }: { player: Player }) {
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -12 }}
-      transition={{ duration: 0.3 }}
+      initial={{ opacity: 0, scale: 0.97 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.97 }}
+      transition={{ duration: 0.25 }}
       className="group"
     >
-      <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-muted/40">
-        {/* Silhouette / initials placeholder */}
-        <div className="absolute inset-0 flex items-center justify-center bg-[#1a1e27]">
-          <span className="text-3xl font-semibold text-muted-foreground/30 sm:text-4xl select-none">
+      <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-[#1a1e27]">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-4xl font-semibold text-white/[0.06] select-none sm:text-5xl">
             {getInitials(player.name)}
           </span>
         </div>
 
-        {/* Number badge */}
-        {player.number && (
-          <div className="absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded bg-background/50 backdrop-blur-sm font-mono text-[11px] font-bold text-foreground/60">
+        {player.number != null && (
+          <div className="absolute right-2.5 top-2.5 rounded bg-white/[0.06] px-1.5 py-0.5 font-mono text-[10px] font-bold text-white/30">
             {player.number}
           </div>
         )}
 
-        {/* Position tag — slides up on hover */}
-        <div className="absolute inset-x-0 bottom-0 translate-y-full bg-gradient-to-t from-[#0c0f14]/80 to-transparent p-3 transition-transform duration-300 group-hover:translate-y-0">
+        <div className="absolute inset-x-0 bottom-0 translate-y-full bg-gradient-to-t from-black/70 to-transparent p-3 transition-transform duration-300 group-hover:translate-y-0">
           <span className="text-[11px] text-white/70">
             {positionLabels[player.position]}
-            {player.number ? ` · #${player.number}` : ""}
           </span>
         </div>
       </div>
 
-      <h3 className="mt-3 text-[14px] font-medium leading-snug tracking-tight text-foreground">
+      <h3 className="mt-3 text-[13px] font-medium leading-snug text-foreground">
         {player.name}
       </h3>
-      <p className="mt-0.5 text-[12px] text-muted-foreground">
+      <p className="mt-0.5 text-[11px] text-muted-foreground">
         {positionLabels[player.position]}
       </p>
     </motion.div>
@@ -87,59 +83,50 @@ export function ClubSquadSection({
       : activeSquad.players.filter((p) => p.position === posFilter)
     : [];
 
-  // Build filter options with counts
   const filterOptions = ["Alle", ...positionOrder].filter((pos) => {
     if (pos === "Alle") return true;
     return activeSquad?.players.some((p) => p.position === pos);
   });
 
   return (
-    <div className="mt-10">
-      {/* Team selector */}
-      <div className="mb-8">
-        <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-          Velg lag
-        </h2>
-        <div className="flex flex-wrap gap-2">
-          {club.teams.map((team: ClubTeam) => {
-            const hasSquad = teamsWithSquad.includes(team.name);
-            const isActive = selectedTeam === team.name;
-            return (
-              <button
-                key={`${team.name}-${team.division}`}
-                onClick={() => {
-                  if (hasSquad) {
-                    setSelectedTeam(team.name);
-                    setPosFilter("Alle");
-                  }
-                }}
-                className={`cursor-pointer rounded-md border px-3 py-2 text-sm font-medium transition-colors ${
-                  isActive
-                    ? "border-[#c5382a] bg-[#c5382a]/10 text-[#c5382a]"
-                    : hasSquad
-                    ? "border-border bg-card text-foreground hover:bg-muted"
-                    : "border-border/50 bg-card/50 text-muted-foreground/50 cursor-default"
-                }`}
-              >
-                <span>{team.name}</span>
-                <span className="ml-2 text-[10px] text-muted-foreground">
-                  {team.division}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+    <div>
+      {/* Team tabs — clean inline style */}
+      <div className="flex flex-wrap gap-2">
+        {club.teams.map((team: ClubTeam) => {
+          const hasSquad = teamsWithSquad.includes(team.name);
+          const isActive = selectedTeam === team.name;
+          return (
+            <button
+              key={`${team.name}-${team.division}`}
+              onClick={() => {
+                if (hasSquad) {
+                  setSelectedTeam(team.name);
+                  setPosFilter("Alle");
+                }
+              }}
+              className={`cursor-pointer rounded-full px-4 py-1.5 text-[13px] font-medium transition-all ${
+                isActive
+                  ? "bg-foreground text-background"
+                  : hasSquad
+                  ? "bg-muted text-foreground hover:bg-muted/80"
+                  : "bg-muted/30 text-muted-foreground/40 cursor-default"
+              }`}
+            >
+              {team.name}
+            </button>
+          );
+        })}
       </div>
 
       {activeSquad && activeSquad.players.length > 0 ? (
         <>
-          {/* Position filter — animated underline like EJAS */}
-          <div className="flex flex-wrap gap-6 border-b border-border">
+          {/* Position filter */}
+          <div className="mt-8 flex gap-6 border-b border-border">
             {filterOptions.map((pos) => (
               <button
                 key={pos}
                 onClick={() => setPosFilter(pos)}
-                className={`relative cursor-pointer whitespace-nowrap pb-3 text-[13px] tracking-wide transition-colors ${
+                className={`relative cursor-pointer whitespace-nowrap pb-3 text-[13px] transition-colors ${
                   posFilter === pos
                     ? "text-foreground"
                     : "text-muted-foreground hover:text-foreground/70"
@@ -156,12 +143,12 @@ export function ClubSquadSection({
             ))}
           </div>
 
-          {/* Player grid */}
-          <div className="mt-10">
+          {/* Players */}
+          <div className="mt-8">
             <AnimatePresence mode="popLayout">
               <motion.div
                 layout
-                className="grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
+                className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
               >
                 {filteredPlayers.map((player) => (
                   <PlayerCard
@@ -174,13 +161,13 @@ export function ClubSquadSection({
           </div>
         </>
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-border bg-card py-16 text-center">
+        <div className="mt-10 flex flex-col items-center justify-center rounded-lg border border-border bg-card py-16 text-center">
           <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
             <User size={20} className="text-muted-foreground" />
           </div>
-          <p className="text-sm font-medium">Spillerdata ikke tilgjengelig</p>
+          <p className="text-sm font-medium">Spillerdata ikke tilgjengelig ennå</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Velg et lag med tilgjengelig tropp, eller sjekk fotball.no
+            Troppen er ikke registrert for dette laget
           </p>
         </div>
       )}
