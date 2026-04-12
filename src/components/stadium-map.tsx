@@ -33,7 +33,7 @@ export function StadiumMap() {
 
         {clubs.map((club) => (
           <CircleMarker
-            key={club.name}
+            key={club.slug}
             center={[club.lat, club.lng]}
             radius={club.teams.length > 2 ? 8 : club.teams.length > 1 ? 7 : 5}
             pathOptions={{
@@ -62,15 +62,33 @@ export function StadiumMap() {
             }}
           >
             <Popup closeButton={false} offset={[0, -6]}>
-              <div className="min-w-[180px]">
-                <div className="text-[13px] font-semibold text-white leading-tight">
-                  {club.name}
-                </div>
-                <div className="mt-0.5 text-[11px] text-white/50">
-                  {club.venue} &middot; {club.location}
+              <div className="min-w-[200px]">
+                {/* Header with logo */}
+                <div className="flex items-center gap-2.5">
+                  <img
+                    src={club.logo}
+                    alt={club.name}
+                    width={32}
+                    height={32}
+                    className="shrink-0"
+                    style={{ imageRendering: "auto" }}
+                  />
+                  <div>
+                    <a
+                      href={`/klubb/${club.slug}`}
+                      className="text-[13px] font-semibold text-white hover:text-[#c5382a] transition-colors leading-tight"
+                    >
+                      {club.name}
+                    </a>
+                    <div className="text-[10px] text-white/40 leading-tight mt-0.5">
+                      {club.venue}
+                    </div>
+                    <div className="text-[10px] text-white/30">{club.location}</div>
+                  </div>
                 </div>
 
-                <div className="mt-2.5 flex flex-col gap-1">
+                {/* Teams */}
+                <div className="mt-2.5 border-t border-white/[0.07] pt-2 flex flex-col gap-1">
                   {club.teams.map((team) => (
                     <div
                       key={`${team.name}-${team.division}`}
@@ -81,6 +99,17 @@ export function StadiumMap() {
                     </div>
                   ))}
                 </div>
+
+                {/* Link */}
+                <a
+                  href={`/klubb/${club.slug}`}
+                  className="mt-2.5 flex items-center justify-center gap-1.5 rounded-md bg-white/[0.06] px-3 py-1.5 text-[11px] font-medium text-white/60 transition-colors hover:bg-white/[0.1] hover:text-white"
+                >
+                  Se klubbside
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </a>
               </div>
             </Popup>
           </CircleMarker>

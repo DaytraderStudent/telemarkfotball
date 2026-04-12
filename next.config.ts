@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "telemarkfotball.wordpress.com",
       },
+      {
+        protocol: "https",
+        hostname: "images.fotball.no",
+      },
     ],
   },
 };
