@@ -65,14 +65,15 @@ export function StadiumMap() {
               <div className="min-w-[200px]">
                 {/* Header with logo */}
                 <div className="flex items-center gap-2.5">
-                  <img
-                    src={club.logo}
-                    alt={club.name}
-                    width={32}
-                    height={32}
-                    className="shrink-0"
-                    style={{ imageRendering: "auto" }}
-                  />
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white/90 p-1">
+                    <img
+                      src={club.logo}
+                      alt={club.name}
+                      width={28}
+                      height={28}
+                      className="h-auto w-full object-contain"
+                    />
+                  </div>
                   <div>
                     <a
                       href={`/klubb/${club.slug}`}
