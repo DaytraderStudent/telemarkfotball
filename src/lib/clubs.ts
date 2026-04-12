@@ -8,9 +8,12 @@ export interface Club {
   name: string;
   logo: string;
   venue: string;
+  address?: string;
   location: string;
   lat: number;
   lng: number;
+  website?: string;
+  instagram?: string;
   teams: ClubTeam[];
 }
 
@@ -20,7 +23,9 @@ export const clubs: Club[] = [
     name: "Hei",
     logo: "https://images.fotball.no/clublogos/537.png",
     venue: "Mortens Plass KG",
+    address: "Lundedalen 43, 3940 Porsgrunn",
     location: "Skien",
+    website: "https://hei-il.no",
     lat: 59.08838, lng: 9.68080,
     teams: [
       { name: "Hei", division: "4. divisjon" },
@@ -42,7 +47,9 @@ export const clubs: Club[] = [
     name: "Eidanger",
     logo: "https://images.fotball.no/clublogos/536.png",
     venue: "Eidangerbanen KG",
+    address: "Ovaldvegen 23, 3996 Porsgrunn",
     location: "Eidanger",
+    website: "https://eidanger.no",
     lat: 59.11544, lng: 9.69604,
     teams: [
       { name: "Eidanger", division: "4. divisjon" },
@@ -54,7 +61,10 @@ export const clubs: Club[] = [
     name: "Odd",
     logo: "https://images.fotball.no/clublogos/556.png",
     venue: "Skagerak Arena",
+    address: "Fridtjof Nansens gate 21, 3722 Skien",
     location: "Skien",
+    website: "https://www.odd.no",
+    instagram: "oddsbk",
     lat: 59.21151, lng: 9.58986,
     teams: [
       { name: "Odd 3", division: "4. divisjon" },
@@ -66,7 +76,9 @@ export const clubs: Club[] = [
     name: "Urædd",
     logo: "https://images.fotball.no/clublogos/542.png",
     venue: "Urædd KG / Kjølnes",
+    address: "Kjølnes Ring 60, 3918 Porsgrunn",
     location: "Porsgrunn",
+    website: "https://uraedd.no",
     lat: 59.14167, lng: 9.66643,
     teams: [
       { name: "Urædd", division: "4. divisjon" },
@@ -80,7 +92,9 @@ export const clubs: Club[] = [
     name: "Storm",
     logo: "https://images.fotball.no/clublogos/552.png",
     venue: "Bratsberg KG",
+    address: "Sanssouciveien 14, 3714 Skien",
     location: "Bratsberg",
+    website: "https://www.if-storm.no",
     lat: 59.20429, lng: 9.62406,
     teams: [
       { name: "Storm", division: "4. divisjon" },
@@ -94,7 +108,10 @@ export const clubs: Club[] = [
     name: "Tollnes",
     logo: "https://images.fotball.no/clublogos/553.png",
     venue: "Tollnes Stadion KG",
+    address: "Nedre Mastemyr 21, 3736 Skien",
     location: "Skien",
+    website: "https://www.tollnes.no",
+    instagram: "tollnesfotball",
     lat: 59.16105, lng: 9.62841,
     teams: [
       { name: "Tollnes", division: "4. divisjon" },
@@ -106,7 +123,10 @@ export const clubs: Club[] = [
     name: "Notodden FK",
     logo: "https://images.fotball.no/clublogos/1687.png",
     venue: "Idrettsparken KG",
+    address: "O. H. Holtas gate 38, 3678 Notodden",
     location: "Notodden",
+    website: "https://www.notoddenfk.no",
+    instagram: "notoddenfotballklubb",
     lat: 59.56364, lng: 9.25984,
     teams: [
       { name: "Notodden 2", division: "4. divisjon" },
@@ -117,7 +137,10 @@ export const clubs: Club[] = [
     name: "Brevik",
     logo: "https://images.fotball.no/clublogos/535.png",
     venue: "Furulund KG",
+    address: "Furulund terrasse, 3950 Brevik",
     location: "Brevik",
+    website: "https://brevikil.no",
+    instagram: "brevik_idrettslag",
     lat: 59.05617, lng: 9.69432,
     teams: [
       { name: "Brevik", division: "4. divisjon" },
@@ -129,6 +152,7 @@ export const clubs: Club[] = [
     name: "Gulset",
     logo: "https://images.fotball.no/clublogos/546.png",
     venue: "Gulset KG",
+    address: "Gulsetringen 159, 3744 Skien",
     location: "Skien",
     lat: 59.21169, lng: 9.55546,
     teams: [
@@ -141,7 +165,9 @@ export const clubs: Club[] = [
     name: "Skarphedin",
     logo: "https://images.fotball.no/clublogos/578.png",
     venue: "Sandvoll / Telemarkshallen KG",
+    address: "Sandvinvegen 9, 3800 Bø i Telemark",
     location: "Bø i Telemark",
+    website: "https://www.skarphedin.no",
     lat: 59.41802, lng: 9.07809,
     teams: [
       { name: "Skarphedin", division: "4. divisjon" },
@@ -163,7 +189,9 @@ export const clubs: Club[] = [
     name: "Snøgg",
     logo: "https://images.fotball.no/clublogos/561.png",
     venue: "Notodden KG",
+    address: "Lisleheradveien 27, 3678 Notodden",
     location: "Notodden",
+    website: "https://snoggfotball.no",
     lat: 59.57093, lng: 9.27054,
     teams: [
       { name: "Snøgg", division: "5. divisjon" },
@@ -425,7 +453,10 @@ export const clubs: Club[] = [
     name: "Pors",
     logo: "https://images.fotball.no/clublogos/1819.png",
     venue: "Pors 2 KG",
+    address: "Stadionvegen 4, 3919 Porsgrunn",
     location: "Porsgrunn",
+    website: "https://www.porsfotball.no",
+    instagram: "pors_fotball",
     lat: 59.15134, lng: 9.64253,
     teams: [{ name: "Pors 3", division: "7. divisjon" }],
   },
