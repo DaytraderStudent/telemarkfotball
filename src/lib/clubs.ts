@@ -103,15 +103,13 @@ export const clubs: Club[] = [
   },
   {
     slug: "notodden",
-    name: "Notodden / Snøgg",
+    name: "Notodden FK",
     logo: "https://images.fotball.no/clublogos/1687.png",
-    venue: "Idrettsparken / Notodden KG",
+    venue: "Idrettsparken KG",
     location: "Notodden",
     lat: 59.56364, lng: 9.25984,
     teams: [
       { name: "Notodden 2", division: "4. divisjon" },
-      { name: "Snøgg", division: "5. divisjon" },
-      { name: "Snøgg kvinner", division: "4. div kvinner" },
     ],
   },
   {
@@ -271,6 +269,16 @@ export const clubs: Club[] = [
     lat: 59.59144, lng: 9.15361,
     teams: [
       { name: "Heddal", division: "6. divisjon" },
+    ],
+  },
+  {
+    slug: "gransherad",
+    name: "Gransherad/Heddal 2",
+    logo: "https://images.fotball.no/clublogos/558.png",
+    venue: "Lerkelunden Fotballbane",
+    location: "Gransherad",
+    lat: 59.69276, lng: 9.02849,
+    teams: [
       { name: "Gransherad/Heddal 2", division: "7. divisjon" },
     ],
   },
