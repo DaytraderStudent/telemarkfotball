@@ -13,19 +13,6 @@ const positionLabels: Record<string, string> = {
   Angrep: "Angrep",
   Ukjent: "Ikke satt",
 };
-const positionColors: Record<string, string> = {
-  Keeper: "#d97706",
-  Forsvar: "#2563eb",
-  Midtbane: "#16a34a",
-  Angrep: "#c5382a",
-  Ukjent: "#6b7280",
-};
-
-function getInitials(name: string) {
-  const parts = name.split(" ");
-  if (parts.length === 1) return parts[0][0];
-  return parts[0][0] + parts[parts.length - 1][0];
-}
 
 export function ClubSquadSection({
   club,
@@ -48,17 +35,10 @@ export function ClubSquadSection({
       : activeSquad.players.filter((p) => p.position === posFilter)
     : [];
 
-  // Group players by position for display
-  const groupedPlayers: Record<string, Player[]> = {};
-  for (const pos of positionOrder) {
-    const inPos = filteredPlayers.filter((p) => p.position === pos);
-    if (inPos.length > 0) groupedPlayers[pos] = inPos;
-  }
-
   return (
     <div className="mt-10">
-      {/* Team selector tabs */}
-      <div className="mb-6">
+      {/* Team selector */}
+      <div className="mb-8">
         <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
           Velg lag
         </h2>
@@ -88,11 +68,10 @@ export function ClubSquadSection({
         </div>
       </div>
 
-      {/* Squad section */}
-      {activeSquad ? (
+      {activeSquad && activeSquad.players.length > 0 ? (
         <>
-          {/* Position filter */}
-          <div className="mb-4 flex items-center gap-2 overflow-x-auto pb-1">
+          {/* Position filter — underline style like the reference image */}
+          <div className="mb-8 flex gap-6 border-b border-border">
             {["Alle", ...positionOrder].map((pos) => {
               const count =
                 pos === "Alle"
@@ -103,57 +82,63 @@ export function ClubSquadSection({
                 <button
                   key={pos}
                   onClick={() => setPosFilter(pos)}
-                  className={`flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                  className={`cursor-pointer pb-3 text-sm font-medium transition-colors relative ${
                     posFilter === pos
-                      ? "border-foreground/20 bg-foreground/10 text-foreground"
-                      : "border-border text-muted-foreground hover:text-foreground"
+                      ? "text-foreground"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  {pos === "Alle" ? (
-                    "Alle"
-                  ) : (
-                    <>
-                      <span
-                        className="h-1.5 w-1.5 rounded-full"
-                        style={{ background: positionColors[pos] }}
-                      />
-                      {positionLabels[pos]}
-                    </>
+                  {pos === "Alle" ? "Alle" : positionLabels[pos]}
+                  {posFilter === pos && (
+                    <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-foreground" />
                   )}
-                  <span className="ml-0.5 text-[10px] text-muted-foreground">{count}</span>
                 </button>
               );
             })}
           </div>
 
-          {/* Player grid */}
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+          {/* Player cards — silhouette style */}
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {filteredPlayers.map((player, i) => (
-              <div
-                key={`${player.name}-${i}`}
-                className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 transition-colors hover:bg-muted/30"
-              >
-                {/* Avatar placeholder */}
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground">
-                  {getInitials(player.name)}
+              <div key={`${player.name}-${i}`} className="group">
+                {/* Silhouette image placeholder */}
+                <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-muted/50">
+                  {/* SVG silhouette */}
+                  <svg
+                    viewBox="0 0 200 260"
+                    className="absolute inset-0 h-full w-full"
+                    fill="none"
+                  >
+                    {/* Background */}
+                    <rect width="200" height="260" fill="rgba(255,255,255,0.03)" />
+                    {/* Head */}
+                    <ellipse
+                      cx="100"
+                      cy="95"
+                      rx="38"
+                      ry="42"
+                      fill="rgba(255,255,255,0.06)"
+                    />
+                    {/* Shoulders/body */}
+                    <path
+                      d="M30 260 C30 190, 55 175, 100 170 C145 175, 170 190, 170 260"
+                      fill="rgba(255,255,255,0.06)"
+                    />
+                  </svg>
+                  {/* Number badge */}
+                  {player.number && (
+                    <div className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-md bg-background/60 backdrop-blur-sm text-[11px] font-bold text-foreground/70">
+                      {player.number}
+                    </div>
+                  )}
                 </div>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium leading-tight">
+                {/* Info below card */}
+                <div className="mt-2.5">
+                  <div className="text-sm font-semibold leading-snug tracking-tight">
                     {player.name}
                   </div>
-                  <div className="mt-0.5 flex items-center gap-1.5">
-                    <span
-                      className="h-1.5 w-1.5 rounded-full"
-                      style={{ background: positionColors[player.position] }}
-                    />
-                    <span className="text-[10px] text-muted-foreground">
-                      {positionLabels[player.position]}
-                    </span>
-                    {player.number && (
-                      <span className="ml-auto font-mono text-[10px] text-muted-foreground/50">
-                        #{player.number}
-                      </span>
-                    )}
+                  <div className="mt-0.5 text-xs text-muted-foreground">
+                    {positionLabels[player.position]}
                   </div>
                 </div>
               </div>
