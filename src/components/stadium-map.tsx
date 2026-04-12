@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { clubs, divisionColors } from "@/lib/clubs";
+import { clubs, divisionColors, type Club } from "@/lib/clubs";
 
 function FitBounds() {
   const map = useMap();
@@ -56,9 +56,12 @@ export function StadiumMap() {
               }}
             >
               <Popup closeButton={false} offset={[0, -6]}>
-                <div className="min-w-[160px]">
+                <div className="min-w-[170px]">
                   <div className="text-[13px] font-semibold text-white leading-tight">
                     {club.name}
+                  </div>
+                  <div className="mt-0.5 text-[11px] text-white/50">
+                    {club.venue}
                   </div>
                   <div className="mt-2 flex items-center gap-2">
                     <span
@@ -71,9 +74,9 @@ export function StadiumMap() {
                       />
                       {club.division}
                     </span>
-                  </div>
-                  <div className="mt-1.5 text-[11px] text-white/40">
-                    {club.location}
+                    <span className="text-[10px] text-white/30">
+                      {club.location}
+                    </span>
                   </div>
                 </div>
               </Popup>
