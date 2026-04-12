@@ -6,11 +6,11 @@ import { Menu, X } from "lucide-react";
 import { IconInstagram, IconFacebook, IconYoutube } from "@/components/icons";
 
 const navLinks = [
-  { label: "Nyheter", href: "#nyheter" },
-  { label: "Tabeller", href: "#tabeller" },
-  { label: "Bildeserier", href: "#galleriet" },
-  { label: "Stadionkart", href: "#" },
-  { label: "Tips oss", href: "#tips" },
+  { label: "Nyheter", href: "/arkiv" },
+  { label: "Tabeller", href: "/tabeller" },
+  { label: "Bildeserier", href: "/bildeserier" },
+  { label: "Stadionkart", href: "/stadionkart" },
+  { label: "Tips oss", href: "/tips" },
 ];
 
 export function Navbar() {
