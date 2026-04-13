@@ -5,7 +5,8 @@ import { SiteFooter } from "@/components/site-footer";
 import { fetchAllStandings, type StandingsRow } from "@/lib/standings-fetcher";
 import { squads, type Player, type TeamSquad } from "@/lib/players";
 import { clubs } from "@/lib/clubs";
-import { ArrowLeft, MapPin, Calendar, Clock, TrendingUp, Users, ExternalLink } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, Clock, TrendingUp, Users, Swords } from "lucide-react";
+import { fetchHeadToHead, type H2HStats } from "@/lib/matches-fetcher";
 
 export const revalidate = 86400;
 
@@ -32,17 +33,38 @@ function getStanding(teamName: string, standings: StandingsRow[]): StandingsRow 
   return standings.find((s) => s.team.toLowerCase() === teamName.toLowerCase()) || null;
 }
 
-function calcProb(home: StandingsRow | null, away: StandingsRow | null) {
+function calcProb(
+  home: StandingsRow | null,
+  away: StandingsRow | null,
+  h2h: H2HStats | null,
+  homeName: string,
+  awayName: string
+) {
   if (!home || !away || (home.played === 0 && away.played === 0)) {
     return { home: 40, draw: 25, away: 35 };
   }
+  // League form component (70% weight)
   const hs = (home.pts / Math.max(home.played, 1)) * 3 + home.gd * 0.1;
   const as_ = (away.pts / Math.max(away.played, 1)) * 3 + away.gd * 0.1;
-  const diff = hs - as_;
-  const h = Math.min(75, Math.max(15, 50 + diff * 3 + 5));
-  const d = Math.min(35, Math.max(15, 30 - Math.abs(diff) * 1.5));
+  const leagueDiff = hs - as_;
+
+  // H2H component (30% weight)
+  let h2hDiff = 0;
+  if (h2h && h2h.matches.length > 0) {
+    // homeWins/awayWins are relative to the first param of fetchHeadToHead (= homeName)
+    const h2hTotal = h2h.homeWins + h2h.awayWins + h2h.draws;
+    h2hDiff = ((h2h.homeWins - h2h.awayWins) / h2hTotal) * 10;
+  }
+
+  const combinedDiff = leagueDiff * 0.7 + h2hDiff * 0.3;
+  const h = Math.min(75, Math.max(15, 50 + combinedDiff * 3 + 5));
+  const d = Math.min(35, Math.max(15, 30 - Math.abs(combinedDiff) * 1.5));
   const a = 100 - h - d;
-  return { home: Math.round(Math.max(5, h)), draw: Math.round(Math.max(5, d)), away: Math.round(Math.max(5, a)) };
+  return {
+    home: Math.round(Math.max(5, h)),
+    draw: Math.round(Math.max(5, d)),
+    away: Math.round(Math.max(5, a)),
+  };
 }
 
 function getSquad(teamName: string): Player[] {
@@ -89,7 +111,8 @@ export default async function KampPage({
   const awayClub = getClubInfo(away);
   const homeStanding = getStanding(home, allStandings);
   const awayStanding = getStanding(away, allStandings);
-  const prob = calcProb(homeStanding, awayStanding);
+  const h2h = await fetchHeadToHead(home, away);
+  const prob = calcProb(homeStanding, awayStanding, h2h, home, away);
   const homeSquad = getSquad(home);
   const awaySquad = getSquad(away);
 
@@ -267,6 +290,65 @@ export default async function KampPage({
                     {awayStanding.gd > 0 ? `+${awayStanding.gd}` : awayStanding.gd}
                   </span>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Head to head */}
+        {h2h.matches.length > 0 && (
+          <div className="mx-auto mt-6 max-w-3xl px-4 sm:px-6">
+            <div className="rounded-xl border border-border bg-card p-6">
+              <div className="mb-4 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                <Swords size={12} />
+                Innbyrdes oppgjør ({h2h.matches.length} kamper)
+              </div>
+
+              {/* H2H summary */}
+              <div className="mb-5 grid grid-cols-3 gap-4 text-center">
+                <div className="rounded-lg bg-muted/30 px-3 py-3">
+                  <div className="text-2xl font-bold text-[#16a34a]">{h2h.homeWins}</div>
+                  <div className="mt-0.5 text-[10px] text-muted-foreground truncate">{home}</div>
+                </div>
+                <div className="rounded-lg bg-muted/30 px-3 py-3">
+                  <div className="text-2xl font-bold text-muted-foreground">{h2h.draws}</div>
+                  <div className="mt-0.5 text-[10px] text-muted-foreground">Uavgjort</div>
+                </div>
+                <div className="rounded-lg bg-muted/30 px-3 py-3">
+                  <div className="text-2xl font-bold text-[#c5382a]">{h2h.awayWins}</div>
+                  <div className="mt-0.5 text-[10px] text-muted-foreground truncate">{away}</div>
+                </div>
+              </div>
+
+              {/* H2H goal stats */}
+              <div className="mb-5 flex items-center justify-between rounded-lg bg-muted/20 px-4 py-2.5 text-xs">
+                <span className="font-bold tabular-nums">{h2h.homeGoalsTotal} mål</span>
+                <span className="text-muted-foreground">Totalt scoret</span>
+                <span className="font-bold tabular-nums">{h2h.awayGoalsTotal} mål</span>
+              </div>
+
+              {/* Match history */}
+              <div className="space-y-px overflow-hidden rounded-md border border-border">
+                {h2h.matches.map((m, i) => {
+                  const homeWon = m.homeGoals > m.awayGoals;
+                  const awayWon = m.awayGoals > m.homeGoals;
+                  return (
+                    <div key={i} className="flex items-center gap-3 bg-card px-4 py-2.5">
+                      <span className="w-20 shrink-0 font-mono text-[10px] text-muted-foreground">
+                        {m.date}
+                      </span>
+                      <span className={`flex-1 text-right text-[12px] truncate ${homeWon ? "font-semibold" : "text-muted-foreground"}`}>
+                        {m.home}
+                      </span>
+                      <span className="shrink-0 rounded bg-muted px-2 py-0.5 font-mono text-xs font-bold tabular-nums">
+                        {m.score}
+                      </span>
+                      <span className={`flex-1 text-[12px] truncate ${awayWon ? "font-semibold" : "text-muted-foreground"}`}>
+                        {m.away}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
