@@ -6,6 +6,8 @@ import { Gallery } from "@/components/gallery";
 import { TipsForm } from "@/components/tips-form";
 import { SiteFooter } from "@/components/site-footer";
 
+export const revalidate = 86400;
+
 export default function Home() {
   return (
     <>
