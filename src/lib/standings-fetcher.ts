@@ -46,7 +46,16 @@ async function fetchTable(fiksId: number): Promise<StandingsRow[]> {
     const cells: string[] = [];
     let m;
     while ((m = tdRegex.exec(standingsTable)) !== null) {
-      cells.push(m[1].replace(/<[^>]+>/g, "").trim());
+      let text = m[1].replace(/<[^>]+>/g, "").trim();
+      // Decode HTML entities (&#xF8; → ø, &#xE6; → æ, &#xC5; → Å, etc.)
+      text = text.replace(/&#x([0-9A-Fa-f]+);/g, (_, hex) =>
+        String.fromCharCode(parseInt(hex, 16))
+      );
+      text = text.replace(/&#(\d+);/g, (_, dec) =>
+        String.fromCharCode(parseInt(dec, 10))
+      );
+      text = text.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"');
+      cells.push(text);
     }
 
     // Each row has 9 cells: pos, team, played, won, drawn, lost, goals (X - Y), gd, pts
