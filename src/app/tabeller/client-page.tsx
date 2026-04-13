@@ -34,15 +34,31 @@ function getLogoForTeam(teamName: string): string | null {
   return null;
 }
 
-// Zone colors: green = promotion, red = relegation
-// Typically top 1-2 promote, bottom 2-3 relegate in Norwegian lower divisions
+// Norwegian lower divisions: 1st place promotes, bottom 3 relegate
 function getZone(
   position: number,
   total: number
 ): "promotion" | "relegation" | null {
-  if (total <= 3) return null; // Too few teams for zones
-  if (position <= 2) return "promotion";
-  if (position >= total - 1) return "relegation";
+  if (total <= 4) return null;
+  if (position === 1) return "promotion";
+  if (position >= total - 2) return "relegation";
+  return null;
+}
+
+// Match team name to a club slug for linking
+function getClubSlug(teamName: string): string | null {
+  const name = teamName.toLowerCase();
+  for (const club of clubs) {
+    if (club.name.toLowerCase() === name) return club.slug;
+    for (const team of club.teams) {
+      if (team.name.toLowerCase() === name) return club.slug;
+    }
+  }
+  // Partial match
+  const base = name.replace(/\s*\d+$/, "").trim();
+  for (const club of clubs) {
+    if (club.name.toLowerCase().startsWith(base)) return club.slug;
+  }
   return null;
 }
 
@@ -156,10 +172,12 @@ export function StandingsPage({
                             current.rows.length
                           );
                           const logo = getLogoForTeam(row.team);
+                          const slug = getClubSlug(row.team);
                           return (
                             <tr
                               key={row.team}
-                              className="border-b border-border last:border-0 transition-colors hover:bg-muted/20"
+                              className={`border-b border-border last:border-0 transition-colors hover:bg-muted/20 ${slug ? "cursor-pointer" : ""}`}
+                              onClick={() => slug && (window.location.href = `/klubb/${slug}`)}
                             >
                               {/* Position with zone indicator */}
                               <td className="relative py-3 pl-5 font-mono text-xs text-muted-foreground">
@@ -191,7 +209,9 @@ export function StandingsPage({
                                   ) : (
                                     <div className="h-7 w-7 shrink-0 rounded-md bg-muted" />
                                   )}
-                                  {row.team}
+                                  <span className={slug ? "hover:text-[#c5382a] transition-colors" : ""}>
+                                    {row.team}
+                                  </span>
                                 </div>
                               </td>
 

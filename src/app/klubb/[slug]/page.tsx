@@ -7,7 +7,10 @@ import { clubs } from "@/lib/clubs";
 import { getSquadsForClub } from "@/lib/players";
 import { ClubSquadSection } from "./client-page";
 import { IconInstagram, IconFacebook } from "@/components/icons";
-import { ArrowLeft, MapPin, Globe, ExternalLink } from "lucide-react";
+import { ArrowLeft, MapPin, Globe, ExternalLink, Calendar } from "lucide-react";
+import { fetchMatchesForClub } from "@/lib/matches-fetcher";
+
+export const revalidate = 86400;
 
 export function generateStaticParams() {
   return clubs.map((c) => ({ slug: c.slug }));
@@ -38,6 +41,8 @@ export default async function ClubPage({
 
   const squads = getSquadsForClub(slug);
   const totalPlayers = squads.reduce((sum, s) => sum + s.players.length, 0);
+  const teamNames = club.teams.map((t) => t.name);
+  const { played, upcoming } = await fetchMatchesForClub(teamNames);
 
   return (
     <>
@@ -131,6 +136,86 @@ export default async function ClubPage({
 
         {/* Divider */}
         <div className="mx-auto mt-12 max-w-5xl border-t border-border" />
+
+        {/* Matches */}
+        {(played.length > 0 || upcoming.length > 0) && (
+          <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
+            <div className="grid gap-8 md:grid-cols-2">
+              {/* Upcoming */}
+              <div>
+                <div className="mb-4 flex items-center gap-2">
+                  <Calendar size={14} className="text-muted-foreground" />
+                  <h2 className="text-sm font-semibold">Kommende kamper</h2>
+                </div>
+                {upcoming.length > 0 ? (
+                  <div className="divide-y divide-border rounded-lg border border-border bg-card">
+                    {upcoming.map((m, i) => (
+                      <div key={i} className="px-4 py-3">
+                        <div className="mb-1.5 font-mono text-[10px] text-muted-foreground">
+                          {m.date} {m.time && `kl. ${m.time}`}
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className={teamNames.some((n) => m.home.toLowerCase().includes(n.toLowerCase())) ? "font-semibold" : "text-muted-foreground"}>
+                            {m.home}
+                          </span>
+                          <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+                            vs
+                          </span>
+                          <span className={teamNames.some((n) => m.away.toLowerCase().includes(n.toLowerCase())) ? "font-semibold" : "text-muted-foreground"}>
+                            {m.away}
+                          </span>
+                        </div>
+                        {m.venue && (
+                          <div className="mt-1 text-[10px] text-muted-foreground/50">{m.venue}</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-lg border border-border bg-card px-4 py-8 text-center text-xs text-muted-foreground">
+                    Ingen kommende kamper ennå
+                  </div>
+                )}
+              </div>
+
+              {/* Results */}
+              <div>
+                <div className="mb-4 flex items-center gap-2">
+                  <Calendar size={14} className="text-muted-foreground" />
+                  <h2 className="text-sm font-semibold">Siste resultater</h2>
+                </div>
+                {played.length > 0 ? (
+                  <div className="divide-y divide-border rounded-lg border border-border bg-card">
+                    {played.map((m, i) => (
+                      <div key={i} className="px-4 py-3">
+                        <div className="mb-1.5 font-mono text-[10px] text-muted-foreground">
+                          {m.date}
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className={teamNames.some((n) => m.home.toLowerCase().includes(n.toLowerCase())) ? "font-semibold" : "text-muted-foreground"}>
+                            {m.home}
+                          </span>
+                          <span className="rounded bg-muted px-2 py-0.5 font-mono text-xs font-bold">
+                            {m.score}
+                          </span>
+                          <span className={teamNames.some((n) => m.away.toLowerCase().includes(n.toLowerCase())) ? "font-semibold" : "text-muted-foreground"}>
+                            {m.away}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-lg border border-border bg-card px-4 py-8 text-center text-xs text-muted-foreground">
+                    Ingen spilte kamper ennå
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="mx-auto max-w-5xl border-t border-border" />
 
         {/* Squad */}
         <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
