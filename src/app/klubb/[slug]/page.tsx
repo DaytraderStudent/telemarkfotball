@@ -54,8 +54,8 @@ export default async function ClubPage({
 
           {/* Centered hero */}
           <div className="mt-10 flex flex-col items-center text-center">
-            <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-white/90 p-3">
-              <img src={club.logo} alt={club.name} width={72} height={72} className="h-auto w-full object-contain" />
+            <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-white p-3.5 shadow-sm">
+              <img src={club.logo} alt={club.name} width={180} height={180} className="h-full w-full object-contain" />
             </div>
             <h1 className="mt-5 text-3xl font-bold tracking-tight sm:text-4xl">
               {club.name}

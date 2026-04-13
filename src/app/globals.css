@@ -120,6 +120,12 @@
   overflow: hidden;
 }
 
+/* Club logos — render crisp at small sizes */
+img[src*="clublogos"] {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
 /* Leaflet popup overrides */
 .leaflet-popup-content-wrapper {
   background: rgba(19, 22, 29, 0.92) !important;

@@ -65,13 +65,13 @@ export function StadiumMap() {
               <div className="min-w-[200px]">
                 {/* Header with logo */}
                 <div className="flex items-center gap-2.5">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white/90 p-1">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white p-1.5">
                     <img
                       src={club.logo}
                       alt={club.name}
-                      width={28}
-                      height={28}
-                      className="h-auto w-full object-contain"
+                      width={180}
+                      height={180}
+                      className="h-full w-full object-contain"
                     />
                   </div>
                   <div>

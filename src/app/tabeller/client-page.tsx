@@ -178,17 +178,18 @@ export function StandingsPage({
                               <td className="py-3 font-medium">
                                 <div className="flex items-center gap-2.5">
                                   {logo ? (
-                                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-white/90 p-0.5">
+                                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white p-1">
                                       <img
                                         src={logo}
                                         alt=""
-                                        width={18}
-                                        height={18}
-                                        className="h-auto w-full object-contain"
+                                        width={36}
+                                        height={36}
+                                        className="h-5 w-5 object-contain"
+                                        loading="lazy"
                                       />
                                     </div>
                                   ) : (
-                                    <div className="h-6 w-6 shrink-0 rounded bg-muted" />
+                                    <div className="h-7 w-7 shrink-0 rounded-md bg-muted" />
                                   )}
                                   {row.team}
                                 </div>
