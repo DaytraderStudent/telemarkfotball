@@ -9,8 +9,6 @@ import { ClubSquadSection } from "./client-page";
 import { IconInstagram, IconFacebook } from "@/components/icons";
 import { ArrowLeft, MapPin, Globe, ExternalLink } from "lucide-react";
 import { fetchMatchesForClub } from "@/lib/matches-fetcher";
-import { fetchAllStandings } from "@/lib/standings-fetcher";
-import { squads } from "@/lib/players";
 import { MatchList } from "@/components/match-list";
 
 export const revalidate = 86400;
@@ -46,8 +44,6 @@ export default async function ClubPage({
   const totalPlayers = squads.reduce((sum, s) => sum + s.players.length, 0);
   const teamNames = club.teams.map((t) => t.name);
   const { played, upcoming } = await fetchMatchesForClub(teamNames);
-  const allDivisions = await fetchAllStandings();
-  const allStandings = allDivisions.flatMap((d) => d.rows);
 
   return (
     <>
@@ -149,8 +145,6 @@ export default async function ClubPage({
               played={played}
               upcoming={upcoming}
               teamNames={teamNames}
-              allStandings={allStandings}
-              allSquads={squads}
             />
           </div>
         )}
