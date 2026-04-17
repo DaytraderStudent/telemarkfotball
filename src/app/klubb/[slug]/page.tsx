@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { Navbar } from "@/components/navbar";
 import { SiteFooter } from "@/components/site-footer";
 import { clubs } from "@/lib/clubs";
-import { getSquadsForClub } from "@/lib/players";
+import { getSquadsForClub, resolvePlayer } from "@/lib/players";
 import { ClubSquadSection } from "./client-page";
 import { IconInstagram, IconFacebook } from "@/components/icons";
 import { ArrowLeft, MapPin, Globe, ExternalLink } from "lucide-react";
@@ -40,7 +40,12 @@ export default async function ClubPage({
   const club = clubs.find((c) => c.slug === slug);
   if (!club) notFound();
 
-  const squads = getSquadsForClub(slug);
+  const squads = getSquadsForClub(slug).map((s) => ({
+    ...s,
+    players: s.players.map((p) =>
+      resolvePlayer(p, s.clubSlug, s.teamName, s.division)
+    ),
+  }));
   const totalPlayers = squads.reduce((sum, s) => sum + s.players.length, 0);
   const teamNames = club.teams.map((t) => t.name);
   const { played, upcoming } = await fetchMatchesForClub(teamNames);

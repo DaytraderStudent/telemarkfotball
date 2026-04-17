@@ -1,10 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import type { Player, TeamSquad } from "@/lib/players";
+import type { ResolvedPlayer } from "@/lib/players";
 import type { Club, ClubTeam } from "@/lib/clubs";
 import { User } from "lucide-react";
+
+interface ResolvedSquad {
+  clubSlug: string;
+  teamName: string;
+  division: string;
+  players: ResolvedPlayer[];
+}
 
 const positionOrder = ["Keeper", "Forsvar", "Midtbane", "Angrep", "Ukjent"] as const;
 const positionLabels: Record<string, string> = {
@@ -22,7 +30,14 @@ function getInitials(name: string) {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-function PlayerCard({ player }: { player: Player }) {
+function overallColor(overall: number) {
+  if (overall >= 85) return "#c5382a";
+  if (overall >= 75) return "#d97706";
+  if (overall >= 65) return "#65a30d";
+  return "#6b7280";
+}
+
+function PlayerCard({ player }: { player: ResolvedPlayer }) {
   return (
     <motion.div
       layout
@@ -32,32 +47,48 @@ function PlayerCard({ player }: { player: Player }) {
       transition={{ duration: 0.25 }}
       className="group"
     >
-      <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-[#1a1e27]">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-4xl font-semibold text-white/[0.06] select-none sm:text-5xl">
-            {getInitials(player.name)}
-          </span>
-        </div>
-
-        {player.number != null && (
-          <div className="absolute right-2.5 top-2.5 rounded bg-white/[0.06] px-1.5 py-0.5 font-mono text-[10px] font-bold text-white/30">
-            {player.number}
+      <Link href={`/spiller/${player.slug}`} className="block">
+        <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-[#1a1e27] transition-transform duration-300 group-hover:scale-[1.02]">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-4xl font-semibold text-white/[0.06] select-none sm:text-5xl">
+              {getInitials(player.name)}
+            </span>
           </div>
-        )}
 
-        <div className="absolute inset-x-0 bottom-0 translate-y-full bg-gradient-to-t from-black/70 to-transparent p-3 transition-transform duration-300 group-hover:translate-y-0">
-          <span className="text-[11px] text-white/70">
-            {positionLabels[player.position]}
-          </span>
+          {player.number != null && (
+            <div className="absolute right-2.5 top-2.5 rounded bg-white/[0.06] px-1.5 py-0.5 font-mono text-[10px] font-bold text-white/30">
+              {player.number}
+            </div>
+          )}
+
+          {player.overall != null && (
+            <div
+              className="absolute left-2.5 top-2.5 flex flex-col items-center rounded px-1.5 py-1"
+              style={{ backgroundColor: overallColor(player.overall) }}
+            >
+              <span className="font-mono text-sm font-bold leading-none text-white tabular-nums">
+                {player.overall}
+              </span>
+              <span className="mt-0.5 text-[7px] font-semibold uppercase tracking-wider text-white/75">
+                {positionLabels[player.position].slice(0, 3).toUpperCase()}
+              </span>
+            </div>
+          )}
+
+          <div className="absolute inset-x-0 bottom-0 translate-y-full bg-gradient-to-t from-black/70 to-transparent p-3 transition-transform duration-300 group-hover:translate-y-0">
+            <span className="text-[11px] text-white/70">
+              Se profil →
+            </span>
+          </div>
         </div>
-      </div>
 
-      <h3 className="mt-3 text-[13px] font-medium leading-snug text-foreground">
-        {player.name}
-      </h3>
-      <p className="mt-0.5 text-[11px] text-muted-foreground">
-        {positionLabels[player.position]}
-      </p>
+        <h3 className="mt-3 text-[13px] font-medium leading-snug text-foreground transition-colors group-hover:text-[#c5382a]">
+          {player.name}
+        </h3>
+        <p className="mt-0.5 text-[11px] text-muted-foreground">
+          {positionLabels[player.position]}
+        </p>
+      </Link>
     </motion.div>
   );
 }
@@ -67,7 +98,7 @@ export function ClubSquadSection({
   squads,
 }: {
   club: Club;
-  squads: TeamSquad[];
+  squads: ResolvedSquad[];
 }) {
   const [selectedTeam, setSelectedTeam] = useState<string>(
     squads.length > 0 ? squads[0].teamName : club.teams[0]?.name || ""

@@ -1,7 +1,21 @@
+export interface PlayerAttributes {
+  hurtighet: number;
+  dribling: number;
+  skudd: number;
+  pasning: number;
+  forsvar: number;
+  fysikk: number;
+}
+
 export interface Player {
   name: string;
   number: number | null;
   position: "Keeper" | "Forsvar" | "Midtbane" | "Angrep" | "Ukjent";
+  slug?: string;
+  photo?: string;
+  bio?: string;
+  attributes?: PlayerAttributes;
+  overall?: number;
 }
 
 export interface TeamSquad {
@@ -9,6 +23,33 @@ export interface TeamSquad {
   teamName: string;
   division: string;
   players: Player[];
+}
+
+export interface ResolvedPlayer extends Player {
+  slug: string;
+  clubSlug: string;
+  teamName: string;
+  division: string;
+}
+
+function slugify(input: string): string {
+  return input
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/æ/g, "ae")
+    .replace(/ø/g, "o")
+    .replace(/å/g, "a")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
+export function getPlayerSlug(player: Player, clubSlug: string): string {
+  if (player.slug) return player.slug;
+  const base = slugify(player.name);
+  return `${clubSlug}-${base}`;
 }
 
 export const squads: TeamSquad[] = [
@@ -571,4 +612,150 @@ export const squads: TeamSquad[] = [
 
 export function getSquadsForClub(clubSlug: string): TeamSquad[] {
   return squads.filter((s) => s.clubSlug === clubSlug);
+}
+
+function hashSeed(input: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+function mulberry32(seed: number) {
+  let a = seed;
+  return () => {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+type PositionArchetype = {
+  hurtighet: [number, number];
+  dribling: [number, number];
+  skudd: [number, number];
+  pasning: [number, number];
+  forsvar: [number, number];
+  fysikk: [number, number];
+};
+
+const archetypes: Record<Player["position"], PositionArchetype> = {
+  Keeper: {
+    hurtighet: [45, 65],
+    dribling: [35, 55],
+    skudd: [30, 50],
+    pasning: [55, 75],
+    forsvar: [70, 88],
+    fysikk: [70, 88],
+  },
+  Forsvar: {
+    hurtighet: [58, 78],
+    dribling: [50, 70],
+    skudd: [45, 65],
+    pasning: [60, 78],
+    forsvar: [72, 90],
+    fysikk: [70, 88],
+  },
+  Midtbane: {
+    hurtighet: [65, 82],
+    dribling: [68, 85],
+    skudd: [60, 80],
+    pasning: [72, 90],
+    forsvar: [55, 75],
+    fysikk: [62, 80],
+  },
+  Angrep: {
+    hurtighet: [72, 92],
+    dribling: [70, 90],
+    skudd: [72, 92],
+    pasning: [60, 80],
+    forsvar: [40, 60],
+    fysikk: [60, 82],
+  },
+  Ukjent: {
+    hurtighet: [55, 75],
+    dribling: [55, 75],
+    skudd: [55, 75],
+    pasning: [55, 75],
+    forsvar: [55, 75],
+    fysikk: [55, 75],
+  },
+};
+
+function generateAttributes(
+  name: string,
+  position: Player["position"]
+): PlayerAttributes {
+  const rand = mulberry32(hashSeed(name));
+  const arch = archetypes[position];
+  const pick = (range: [number, number]) =>
+    Math.round(range[0] + rand() * (range[1] - range[0]));
+  return {
+    hurtighet: pick(arch.hurtighet),
+    dribling: pick(arch.dribling),
+    skudd: pick(arch.skudd),
+    pasning: pick(arch.pasning),
+    forsvar: pick(arch.forsvar),
+    fysikk: pick(arch.fysikk),
+  };
+}
+
+function computeOverall(attrs: PlayerAttributes): number {
+  const sum =
+    attrs.hurtighet +
+    attrs.dribling +
+    attrs.skudd +
+    attrs.pasning +
+    attrs.forsvar +
+    attrs.fysikk;
+  return Math.round(sum / 6);
+}
+
+export function resolvePlayer(
+  player: Player,
+  clubSlug: string,
+  teamName: string,
+  division: string
+): ResolvedPlayer {
+  const attributes =
+    player.attributes ?? generateAttributes(player.name, player.position);
+  const overall = player.overall ?? computeOverall(attributes);
+  return {
+    ...player,
+    slug: getPlayerSlug(player, clubSlug),
+    clubSlug,
+    teamName,
+    division,
+    attributes,
+    overall,
+  };
+}
+
+export function getAllResolvedPlayers(): ResolvedPlayer[] {
+  return squads.flatMap((squad) =>
+    squad.players.map((p) =>
+      resolvePlayer(p, squad.clubSlug, squad.teamName, squad.division)
+    )
+  );
+}
+
+export function getResolvedPlayerBySlug(slug: string): ResolvedPlayer | null {
+  for (const squad of squads) {
+    for (const player of squad.players) {
+      const candidateSlug = getPlayerSlug(player, squad.clubSlug);
+      if (candidateSlug === slug) {
+        return resolvePlayer(
+          player,
+          squad.clubSlug,
+          squad.teamName,
+          squad.division
+        );
+      }
+    }
+  }
+  return null;
 }

@@ -8,6 +8,7 @@ import { IconInstagram, IconFacebook, IconYoutube } from "@/components/icons";
 const navLinks = [
   { label: "Nyheter", href: "/arkiv" },
   { label: "Tabeller", href: "/tabeller" },
+  { label: "Ukens Lag", href: "/ukens-lag" },
   { label: "Bildeserier", href: "/bildeserier" },
   { label: "Stadionkart", href: "/stadionkart" },
   { label: "Tips oss", href: "/tips" },
